@@ -70,6 +70,8 @@ class GyeongbukDashboard {
     
     async loadInitialData() {
         try {
+            console.log('초기 데이터 로드 시작...');
+            
             // 통계 정보 로드
             await this.loadStatistics();
             
@@ -79,39 +81,64 @@ class GyeongbukDashboard {
             // 프로젝트 목록 로드
             await this.loadProjects();
             
+            console.log('초기 데이터 로드 완료');
         } catch (error) {
             console.error('초기 데이터 로드 오류:', error);
-            this.showToast('데이터 로드 중 오류가 발생했습니다.', 'error');
+            this.showToast('데이터 로드 중 오류가 발생했습니다. 페이지를 새로고침해보세요.', 'error');
         }
     }
     
     async loadStatistics() {
         try {
+            console.log('통계 정보 로드 시작...');
             const response = await fetch('/api/statistics');
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
             const stats = await response.json();
+            console.log('통계 데이터:', stats);
             
             document.getElementById('total-projects').textContent = stats.total_projects.toLocaleString();
             document.getElementById('a-grade-count').textContent = stats.a_grade_count.toLocaleString();
             document.getElementById('b-grade-count').textContent = stats.b_grade_count.toLocaleString();
             document.getElementById('avg-score').textContent = stats.avg_score;
             
+            console.log('통계 정보 로드 완료');
         } catch (error) {
             console.error('통계 로드 오류:', error);
+            this.showToast('통계 정보를 불러오는 중 오류가 발생했습니다.', 'error');
+            
+            // 기본값 설정
+            document.getElementById('total-projects').textContent = '0';
+            document.getElementById('a-grade-count').textContent = '0';
+            document.getElementById('b-grade-count').textContent = '0';
+            document.getElementById('avg-score').textContent = '0';
         }
     }
     
     async loadFilterOptions() {
         try {
+            console.log('필터 옵션 로드 시작...');
             const response = await fetch('/api/filters');
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
             const filters = await response.json();
+            console.log('필터 옵션:', filters);
             
-            this.populateSelect('dept-filter', filters.departments);
-            this.populateSelect('grade-filter', filters.grades);
-            this.populateSelect('type-filter', filters.types);
-            this.populateSelect('region-filter', filters.regions);
+            this.populateSelect('dept-filter', filters.departments || []);
+            this.populateSelect('grade-filter', filters.grades || []);
+            this.populateSelect('type-filter', filters.types || []);
+            this.populateSelect('region-filter', filters.regions || []);
             
+            console.log('필터 옵션 로드 완료');
         } catch (error) {
             console.error('필터 옵션 로드 오류:', error);
+            this.showToast('필터 옵션을 불러오는 중 오류가 발생했습니다.', 'error');
         }
     }
     
@@ -763,6 +790,23 @@ class GyeongbukDashboard {
         }, 4000);
     }
 }
+
+// 전역 오류 처리
+window.addEventListener('unhandledrejection', function(event) {
+    console.error('처리되지 않은 Promise 오류:', event.reason);
+    
+    // 사용자에게 친화적인 메시지 표시
+    if (typeof dashboard !== 'undefined' && dashboard.showToast) {
+        dashboard.showToast('예상치 못한 오류가 발생했습니다. 페이지를 새로고침해보세요.', 'error');
+    }
+    
+    // 기본 오류 처리 방지
+    event.preventDefault();
+});
+
+window.addEventListener('error', function(event) {
+    console.error('JavaScript 오류:', event.error);
+});
 
 // 전역 대시보드 인스턴스
 const dashboard = new GyeongbukDashboard();
