@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026년 국회예산안기반 경북연구원 분야별 검토의견서</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/notion-style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <i class="fas fa-university header-icon"></i>
+                <h1 class="header-title">경북연구원</h1>
+            </div>
+            <div class="header-right">
+                <span class="header-date" id="current-date"></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- 메인 컨테이너 -->
+    <div class="container">
+        <!-- 제목 섹션 -->
+        <div class="title-section">
+            <h1 class="page-title">
+                <i class="fas fa-chart-bar"></i>
+                2026년 국회예산안기반 경북연구원 분야별 검토의견서
+            </h1>
+            <p class="page-subtitle">경북 관련 국가 사업 분석 및 우선순위 검토 대시보드</p>
+        </div>
+
+        <!-- 통계 카드 섹션 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-project-diagram"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="total-projects">-</div>
+                    <div class="stat-label">총 사업 수</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon priority">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="a-grade-count">-</div>
+                    <div class="stat-label">A급 직접관련</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon secondary">
+                    <i class="fas fa-link"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="b-grade-count">-</div>
+                    <div class="stat-label">B급 간접관련</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon info">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="avg-score">-</div>
+                    <div class="stat-label">평균 관련도</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 더미 데이터 관리 섹션 -->
+        <div class="dummy-management-section">
+            <div class="section-header">
+                <h2><i class="fas fa-database"></i> 더미 데이터 관리</h2>
+                <div class="dummy-actions">
+                    <button class="btn btn-warning" id="show-dummy-list">
+                        <i class="fas fa-list"></i> 더미 데이터 목록
+                    </button>
+                    <button class="btn btn-primary" id="replace-dummy-btn">
+                        <i class="fas fa-sync-alt"></i> 실제 데이터로 치환
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 더미 데이터 목록 (초기에는 숨김) -->
+            <div class="dummy-list-container" id="dummy-list-container" style="display: none;">
+                <div class="dummy-list-header">
+                    <h3>더미 데이터 목록</h3>
+                    <div class="dummy-selection">
+                        <label>
+                            <input type="checkbox" id="select-all-dummy"> 전체 선택
+                        </label>
+                        <span class="dummy-count" id="dummy-count-display">0개</span>
+                    </div>
+                </div>
+                <div class="dummy-list" id="dummy-list">
+                    <!-- 더미 데이터 항목들이 여기에 동적으로 추가됩니다 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 필터 섹션 -->
+        <div class="filter-section">
+            <div class="filter-header">
+                <h2><i class="fas fa-filter"></i> 필터링 옵션</h2>
+                <button class="btn btn-secondary" id="reset-filters">
+                    <i class="fas fa-undo"></i> 초기화
+                </button>
+            </div>
+            
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <label for="dept-filter">주요부처</label>
+                    <select id="dept-filter" class="filter-select">
+                        <option value="">전체</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="grade-filter">경북관련성</label>
+                    <select id="grade-filter" class="filter-select">
+                        <option value="">전체</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="type-filter">사업유형</label>
+                    <select id="type-filter" class="filter-select">
+                        <option value="">전체</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="region-filter">지역관련성</label>
+                    <select id="region-filter" class="filter-select">
+                        <option value="">전체</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="search-input">검색</label>
+                    <input type="text" id="search-input" class="filter-input" placeholder="사업명 또는 내용 검색">
+                </div>
+                
+                <div class="filter-group">
+                    <label for="score-range">관련도 점수</label>
+                    <div class="range-container">
+                        <input type="range" id="min-score" min="0" max="300" value="0" class="range-input">
+                        <input type="range" id="max-score" min="0" max="300" value="300" class="range-input">
+                        <div class="range-labels">
+                            <span id="min-score-label">0</span> - <span id="max-score-label">300</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 결과 섹션 -->
+        <div class="results-section">
+            <div class="results-header">
+                <h2><i class="fas fa-list"></i> 검토 대상 사업 목록</h2>
+                <div class="results-info">
+                    <span id="results-count">0</span>개 사업
+                    <button class="btn btn-primary" id="export-btn">
+                        <i class="fas fa-download"></i> 엑셀 다운로드
+                    </button>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table class="data-table" id="data-table">
+                    <thead>
+                        <tr>
+                            <th>순번</th>
+                            <th>주요부처</th>
+                            <th>사업내용</th>
+                            <th>사업비</th>
+                            <th>경북관련성</th>
+                            <th>관련도점수</th>
+                            <th>사업유형</th>
+                            <th>지역관련성</th>
+                            <th>검토</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-tbody">
+                        <!-- 데이터가 여기에 동적으로 로드됩니다 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 로딩 상태 -->
+            <div class="loading" id="loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                데이터를 불러오는 중...
+            </div>
+            
+            <!-- 빈 상태 -->
+            <div class="empty-state" id="empty-state" style="display: none;">
+                <i class="fas fa-search"></i>
+                <p>검색 조건에 맞는 사업이 없습니다.</p>
+                <p>필터를 조정해보세요.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 사업 상세 모달 -->
+    <div class="modal" id="detail-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">사업 상세 정보</h3>
+                <button class="modal-close" id="modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- 상세 정보가 여기에 로드됩니다 -->
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>
