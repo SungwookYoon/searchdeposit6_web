@@ -253,10 +253,10 @@ def generate_report():
                 report_content = generator.generate_comprehensive_report(row, priority)
                 filename = generator.generate_filename(row, priority, main_keyword)
                 
-                 # 임시 파일로 저장 (Vercel에서는 /tmp 사용)
-                 temp_dir = '/tmp/temp_reports' if os.path.exists('/tmp') else 'temp_reports'
-                 temp_path = os.path.join(temp_dir, filename)
-                 os.makedirs(temp_dir, exist_ok=True)
+                # 임시 파일로 저장 (Vercel에서는 /tmp 사용)
+                temp_dir = '/tmp/temp_reports' if os.path.exists('/tmp') else 'temp_reports'
+                temp_path = os.path.join(temp_dir, filename)
+                os.makedirs(temp_dir, exist_ok=True)
                 
                 with open(temp_path, 'w', encoding='utf-8') as f:
                     f.write(report_content)
@@ -285,15 +285,15 @@ def generate_report():
 @app.route('/download_report/<filename>')
 def download_report(filename):
     """검토의견서 파일 다운로드"""
-     try:
-         # Vercel 환경에 맞는 경로 설정
-         temp_dir = '/tmp/temp_reports' if os.path.exists('/tmp') else 'temp_reports'
-         file_path = os.path.join(temp_dir, filename)
-         
-         if os.path.exists(file_path):
-             return send_file(file_path, as_attachment=True, download_name=filename)
-         else:
-             return "파일을 찾을 수 없습니다.", 404
+    try:
+        # Vercel 환경에 맞는 경로 설정
+        temp_dir = '/tmp/temp_reports' if os.path.exists('/tmp') else 'temp_reports'
+        file_path = os.path.join(temp_dir, filename)
+        
+        if os.path.exists(file_path):
+            return send_file(file_path, as_attachment=True, download_name=filename)
+        else:
+            return "파일을 찾을 수 없습니다.", 404
     except Exception as e:
         return f"다운로드 오류: {str(e)}", 500
 
