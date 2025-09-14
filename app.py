@@ -352,6 +352,9 @@ def ensure_directories():
 
 ensure_directories()
 
+# Vercel용 WSGI 애플리케이션 객체
+application = app
+
 if __name__ == '__main__':
     print("=== 경북 700개 사업 웹 시스템 시작 ===")
     print("- 노션 스타일 UI")
